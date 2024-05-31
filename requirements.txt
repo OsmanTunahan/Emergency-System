@@ -2,3 +2,4 @@ Flask
 PyJWT
 bcrypt
 SQLAlchemy
+Flask-SQLAlchemy
