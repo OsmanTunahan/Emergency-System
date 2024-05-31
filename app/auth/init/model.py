@@ -1,20 +1,22 @@
-class UserModel:
-    users = []
+from app import db
+
+class UserModel(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    password = db.Column(db.String(150), nullable=False)
 
     @classmethod
     def find_by_username(cls, username):
-        return next((user for user in cls.users if user['username'] == username), None)
+        return cls.query.filter_by(username=username).first()
 
     @classmethod
     def find_by_id(cls, user_id):
-        return next((user for user in cls.users if user['id'] == user_id), None)
+        return cls.query.get(user_id)
 
     @classmethod
     def create_user(cls, username, password):
-        user = {
-            'id': len(cls.users) + 1,
-            'username': username,
-            'password': password
-        }
-        cls.users.append(user)
-        return user
+        new_user = cls(username=username, password=password)
+        db.session.add(new_user)
+        db.session.commit()
+        return new_user
