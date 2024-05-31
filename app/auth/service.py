@@ -20,6 +20,6 @@ class AuthService:
     def register(username, password):
         if UserModel.find_by_username(username):
             return False
-        hashed_password = generate_password_hash(password)
+        hashed_password = generate_password_hash(password, method='pbkdf2')
         UserModel.create_user(username, hashed_password)
         return True
