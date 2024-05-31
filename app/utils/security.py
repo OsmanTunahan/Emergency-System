@@ -1,7 +1,23 @@
-from werkzeug.security import generate_password_hash, check_password_hash
+import jwt
+from functools import wraps
+from flask import request, jsonify
+from app.config import Config
+from app.auth.init.model import UserModel
 
-def hash_password(password):
-    return generate_password_hash(password)
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
 
-def verify_password(hash, password):
-    return check_password_hash(hash, password)
+        if not token:
+            return jsonify({'message': 'Token is missing'}), 403
+
+        try:
+            data = jwt.decode(token, Config.JWT_SECRET_KEY, algorithms=['HS256'])
+            current_user = UserModel.find_by_id(data['user_id'])
+        except:
+            return jsonify({'message': 'Token is invalid or expired'}), 403
+
+        return f(current_user, *args, **kwargs)
+    
+    return decorated
