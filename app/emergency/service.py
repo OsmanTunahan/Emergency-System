@@ -1,4 +1,6 @@
 from datetime import datetime
+from app import db
+from app.emergency.init.model import EmergencyLogModel
 
 class EmergencyService:
     logs = []
@@ -15,16 +17,11 @@ class EmergencyService:
 
     @staticmethod
     def log_emergency(data, severity, user_id):
-        log_entry = {
-            'id': len(EmergencyService.logs) + 1,
-            'user_id': user_id,
-            'timestamp': datetime.utcnow(),
-            'data': data,
-            'severity': severity
-        }
-        EmergencyService.logs.append(log_entry)
-        return log_entry['id']
+        log_entry = EmergencyLogModel(user_id=user_id, data=data, severity=severity)
+        db.session.add(log_entry)
+        db.session.commit()
+        return log_entry.id
 
     @staticmethod
     def get_user_logs(user_id):
-        return [log for log in EmergencyService.logs if log['user_id'] == user_id]
+        return EmergencyLogModel.query.filter_by(user_id=user_id).all()
