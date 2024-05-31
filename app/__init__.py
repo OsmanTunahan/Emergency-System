@@ -2,6 +2,10 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from app.config import Config
 
+# fix: ModuleNotFoundError: No module named 'MySQLdb'
+import pymysql
+pymysql.install_as_MySQLdb()
+
 db = SQLAlchemy()
 
 def create_app():
